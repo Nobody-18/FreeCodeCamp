@@ -3,6 +3,7 @@ class Category:
         self.name = name
         self.ledger = []
         self.balance = 0
+        self.spend = 0
 
     def deposit(self, amount, description=""):
         self.depo = {}
@@ -19,6 +20,9 @@ class Category:
         self.withd["description"] = description
         self.ledger.append(self.withd)
         self.balance -= amount
+        if not self.withd["description"].startswith("Transfer"):
+            self.spend += amount
+
         return True
 
     def get_balance(self):
@@ -40,18 +44,34 @@ class Category:
     def __str__(self):
         st = self.name.center(30, "*")
         for entry in self.ledger:
-            data = "\n%-23s %-9s" % (entry["description"], entry["amount"])
+            data = "\n%-20s %-9s" % (entry["description"], entry["amount"])
             st += data
         st = st + (f"\nTotal: {self.balance}")
 
         return st
 
 
-food = Category("food")
-Clothing = Category("Clothing")
-food.deposit(1000, "initial deposit")
-food.withdraw(10.15, "groceries")
-food.withdraw(15.89, "restraunt and more food")
-food.transfer(50, Clothing)
-print(food)
-print(Clothing)
+def create_spend_chart(categories):
+    total = 0
+    percent = {}
+    for category in categories:
+        total += category.spend
+    for category in categories:
+        percent[category.name] = round(category.spend / total * 10, 0)
+        print(percent)
+    for i in range(10):
+        print(str(100 - 10 * i).rjust(3), "|", end="")
+        for category in categories:
+            if i < (10 - percent[category.name]):
+                continue
+            print("o", end="  ")
+        print("\n")
+    print("   ", "---" * len(categories))
+    for i in range(20):
+        print("     ", end="")
+        for category in categories:
+            if i < len(category.name):
+                print(category.name[i], end="  ")
+            else:
+                print(" ", end="  ")
+        print("\n")
